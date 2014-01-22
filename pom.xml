@@ -1,0 +1,291 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <!-- Project information -->
+  <name>JLine Console Log4j2 Appender</name>
+  <groupId>com.github.wolf480pl</groupId>
+  <artifactId>jline-log4j2-appender</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <url>http://github.com/Wolf480pl/${repoName}</url>
+  <inceptionYear>2013</inceptionYear>
+  <packaging>jar</packaging>
+  <description>A log4j2 console appender that interoperates properly with JLine ConsoleReader to prevent inserting log messages between command prompt and uesr's input.</description>
+
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+  
+  <!-- Build properties -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <author>Wolf480pl</author>
+    <email>wolf480@interia.pl</email>
+    <repoName>${project.artifactId}</repoName>
+    <packageName>jline_log4j2_appender</packageName>
+    <ciSystem>unknown</ciSystem>
+    <buildNumber>0</buildNumber>
+  </properties>
+  
+  <!-- Developers -->
+  <developers>
+    <developer>
+      <id>wolf480pl</id>
+      <name>Wolf480pl</name>
+      <email>wolf480@interia.pl</email>
+    </developer>
+  </developers>
+
+  <!-- License information -->
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://wolf480pl.github.com/log4j2-to-jul/mit.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- Source code access -->
+  <scm>
+    <url>http://github.com/Wolf480pl/${repoName}</url>
+    <connection>scm:git:git://github.com/Wolf480pl/${repoName}.git</connection>
+    <developerConnection>scm:git:git@github.com:Wolf480pl/${repoName}.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  
+  <!-- Continuous integration -->
+  <ciManagement>
+    <system>travis</system>
+    <url>https://travis-ci.org/Wolf480pl/${repoName}</url>
+  </ciManagement>
+  
+  <!-- Issue tracking -->
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/Wolf480pl/${repoName}/issues</url>
+  </issueManagement>
+
+  <!-- Build dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.0-beta9</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jline</groupId>
+      <artifactId>jline</artifactId>
+      <version>2.11</version>
+    </dependency>
+  </dependencies>
+
+  <!-- Build configuration -->
+  <build>
+    <defaultGoal>clean install</defaultGoal>
+
+    <!-- Resources to include -->
+    <resources>
+      <!-- Static resources -->
+      <resource>
+        <filtering>false</filtering>
+        <directory>.</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+        </includes>
+      </resource>
+    </resources>
+    
+    <!-- Build plugins -->
+    <plugins>
+      <!-- License header plugin -->
+      <plugin>
+        <groupId>com.mycila.maven-license-plugin</groupId>
+        <artifactId>maven-license-plugin</artifactId>
+        <version>1.10.b1</version>
+        <executions>
+          <execution>
+            <configuration>
+              <properties>
+                <name>${project.name}</name>
+                <url>${email}</url>
+                <year>${project.inceptionYear}</year>
+                <organization>${author}</organization>
+              </properties>
+              <quiet>true</quiet>
+              <encoding>UTF-8</encoding>
+              <strictCheck>true</strictCheck>
+              <header>HEADER.txt</header>
+              <mapping>
+                <java>SLASHSTAR_STYLE</java>
+              </mapping>
+              <keywords>
+                <keyword>${project.name}</keyword>
+                <keyword>license</keyword>
+              </keywords>
+              <includes>
+                <include>src/main/java/**</include>
+                <include>src/test/java/**</include>
+              </includes>
+            </configuration>
+            <phase>clean</phase>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Source compiler plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.0</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+          <compilerArguments>
+            <O>-Xlint:all</O>
+            <O>-Xlint:-path</O>
+          </compilerArguments>
+          <showWarnings>true</showWarnings>
+          <showDeprecation>true</showDeprecation>
+        </configuration>
+      </plugin>
+      <!-- Log4j2 plugin preloading plugin -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>org.apache.logging.log4j.core.config.plugins.PluginManager</mainClass>
+          <classpathScope>compile</classpathScope>
+          <arguments>
+            <argument>${project.build.outputDirectory}</argument>
+            <argument>${project.groupId}.${packageName}</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+      <!-- Maven release plugin --> 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.4.1</version>
+        <configuration>
+          <localCheckout>true</localCheckout>
+          <pushChanges>false</pushChanges>
+        </configuration>
+      </plugin>
+      <!-- Maven site plugin -->
+      <plugin>    
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.3</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.doxia</groupId>
+            <artifactId>doxia-module-markdown</artifactId>
+            <version>1.3</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-webdav-jackrabbit</artifactId>
+            <version>2.5</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-changelog-plugin</artifactId>
+        <version>2.2</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
+        <configuration>
+          <detectLinks>true</detectLinks>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <version>2.4</version>
+      </plugin>
+    </plugins>
+  </reporting>
+    
+  <!-- Build profiles -->
+  <profiles>
+    <!-- Deployment to my presonal Nexus -->
+    <profile>
+      <id>wolf480-nexus-deploy</id>
+      <activation>
+        <property>
+          <name>env.TRAVIS_BRANCH</name>
+          <value>master</value>
+        </property>
+      </activation>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>wolf480pl-snapshots</id>
+          <name>Wolf480pl Nexus Snapshots</name>
+          <url>http://nex-wolf480pl.rhcloud.com/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <site>
+          <id>wolf480pl-site</id>
+          <url>dav:http://nex-wolf480pl.rhcloud.com/nexus/content/sites/${project.artifactId}-site/</url>
+        </site>
+      </distributionManagement>
+    </profile>
+    <!-- Site GitHub deployment -->
+    <profile>
+      <id>github-site-deploy</id>
+      <activation>
+        <property>
+          <name>!ciSystem</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>    
+            <artifactId>maven-site-plugin</artifactId>
+            <configuration>
+              <skipDeploy>true</skipDeploy>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>com.github.github</groupId>
+            <artifactId>site-maven-plugin</artifactId>
+            <version>0.8</version>
+            <executions>
+              <execution>
+                <configuration>
+                  <server>github-deploy</server>
+                  <branch>refs/heads/gh-pages</branch>
+                  <message>Site for ${project.name} ${project.version}-b${buildNumber}</message>
+                </configuration>
+                <phase>site-deploy</phase>
+                <goals>
+                  <goal>site</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
