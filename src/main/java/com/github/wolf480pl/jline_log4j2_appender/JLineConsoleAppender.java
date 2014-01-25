@@ -73,7 +73,13 @@ public class JLineConsoleAppender extends AbstractOutputStreamAppender {
         if (msg instanceof ConsoleSetupMessage) {
             ConsoleReader reader = ((ConsoleSetupMessage) msg).getReader();
             Listener listener = new ConsoleReaderListener(reader);
-            this.manager.addListener(listener);
+            switch (((ConsoleSetupMessage) msg).getAction()) {
+            case ADD:
+                this.manager.addListener(listener);
+                break;
+            case REMOVE:
+                this.manager.removeListener(listener);
+            }
         }
         super.append(event);
     }
@@ -170,6 +176,11 @@ public class JLineConsoleAppender extends AbstractOutputStreamAppender {
                 return this.reader == ((ConsoleReaderListener) obj).reader;
             }
             return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.reader.hashCode();
         }
     }
 }

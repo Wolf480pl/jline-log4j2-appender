@@ -29,14 +29,27 @@ import org.apache.logging.log4j.message.SimpleMessage;
 
 public class ConsoleSetupMessage extends SimpleMessage {
     private final ConsoleReader reader;
+    private final Action action;
 
     public ConsoleSetupMessage(ConsoleReader reader, String message) {
+        this(reader, Action.ADD, message);
+    }
+
+    public ConsoleSetupMessage(ConsoleReader reader, Action action, String message) {
         super(message);
         this.reader = reader;
+        this.action = action;
     }
 
     public ConsoleReader getReader() {
         return this.reader;
     }
 
+    public Action getAction() {
+        return this.action;
+    }
+
+    public static enum Action {
+        ADD, REMOVE
+    }
 }
