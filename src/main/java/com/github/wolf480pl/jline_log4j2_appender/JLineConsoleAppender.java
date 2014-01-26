@@ -35,6 +35,7 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractOutputStreamAppender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import org.apache.logging.log4j.core.appender.ManagerFactory;
+import org.apache.logging.log4j.core.appender.OutputStreamManager;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
@@ -49,10 +50,12 @@ import com.github.wolf480pl.jline_log4j2_appender.HookableOutputStreamManager.Li
 @Plugin(name = "JLineConsole", category = "Core", elementType = "appender", printObject = true)
 public class JLineConsoleAppender extends AbstractOutputStreamAppender {
     private final HookableOutputStreamManager manager;
+    private OutputStreamManager held; // Make sure they don't close System.out or System.err when we're still using it.
 
-    protected JLineConsoleAppender(String name, Layout<? extends Serializable> layout, Filter filter, HookableOutputStreamManager manager, boolean ignoreExceptions) {
+    protected JLineConsoleAppender(String name, Layout<? extends Serializable> layout, Filter filter, HookableOutputStreamManager manager, OutputStreamManager held, boolean ignoreExceptions) {
         super(name, layout, filter, ignoreExceptions, true, manager);
         this.manager = manager;
+        this.held = held;
     }
 
     @Override
@@ -72,6 +75,12 @@ public class JLineConsoleAppender extends AbstractOutputStreamAppender {
         super.append(event);
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+        this.held.release();
+    }
+
     @PluginFactory
     public static JLineConsoleAppender createAppender(@PluginElement("Layout") Layout<? extends Serializable> layout, @PluginElement("Filters") final Filter filter,
             @PluginAttribute("target") final String t, @PluginAttribute("name") final String name, @PluginAttribute("follow") final String follow,
@@ -86,7 +95,16 @@ public class JLineConsoleAppender extends AbstractOutputStreamAppender {
         final boolean isFollow = Boolean.parseBoolean(follow);
         final boolean ignoreExceptions = Booleans.parseBoolean(ignore, true);
         final Target target = t == null ? Target.SYSTEM_OUT : Target.valueOf(t);
-        return new JLineConsoleAppender(name, layout, filter, getManager(isFollow, target, layout), ignoreExceptions);
+        FactoryData data = new FactoryData(getStream(isFollow, target), layout);
+        return new JLineConsoleAppender(name, layout, filter, getManager(isFollow, target, data), getHeldManager(isFollow, target, data), ignoreExceptions);
+    }
+
+    protected static HookableOutputStreamManager getManager(boolean follow, Target target, FactoryData data) {
+        return HookableOutputStreamManager.getHookableManager(target.name() + ".jline." + follow, data, FACTORY);
+    }
+
+    protected static OutputStreamManager getHeldManager(boolean follow, Target target, FactoryData data) {
+        return OutputStreamManager.getManager(target.name() + "." + follow, data, FACTORY);
     }
 
     protected static HookableOutputStreamManager getManager(boolean follow, Target target, Layout<? extends Serializable> layout) {
