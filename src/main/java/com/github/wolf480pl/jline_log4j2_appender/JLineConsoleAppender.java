@@ -23,11 +23,11 @@
  */
 package com.github.wolf480pl.jline_log4j2_appender;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import jline.console.ConsoleReader;
 
@@ -35,7 +35,6 @@ import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractOutputStreamAppender;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import org.apache.logging.log4j.core.appender.ManagerFactory;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -45,21 +44,12 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.helpers.Booleans;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.message.Message;
+import org.fusesource.jansi.AnsiConsole;
 
 import com.github.wolf480pl.jline_log4j2_appender.HookableOutputStreamManager.Listener;
 
 @Plugin(name = "JLineConsole", category = "Core", elementType = "appender", printObject = true)
 public class JLineConsoleAppender extends AbstractOutputStreamAppender {
-    private static Method getOutputStream = null;
-    static {
-        try {
-            getOutputStream = ConsoleAppender.class.getDeclaredMethod("getOutputStream", Boolean.TYPE, Target.class);
-            getOutputStream.setAccessible(true);
-        } catch (NoSuchMethodException | SecurityException e) {
-            LOGGER.fatal(e);
-        }
-    }
-
     private final HookableOutputStreamManager manager;
 
     protected JLineConsoleAppender(String name, Layout<? extends Serializable> layout, Filter filter, HookableOutputStreamManager manager, boolean ignoreExceptions) {
@@ -103,12 +93,18 @@ public class JLineConsoleAppender extends AbstractOutputStreamAppender {
 
     protected static HookableOutputStreamManager getManager(boolean follow, Target target, Layout<? extends Serializable> layout) {
         OutputStream stream;
-        try {
-            stream = (OutputStream) getOutputStream.invoke(null, follow, target);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        stream = getStream(follow, target);
         return HookableOutputStreamManager.getHookableManager(target.name() + ".jline." + follow, new FactoryData(stream, layout), FACTORY);
+    }
+
+    protected static OutputStream getStream(boolean follow, Target target) {
+        OutputStream os;
+        if (target == Target.SYSTEM_ERR) {
+            os = follow ? new SystemErrStream() : new FileOutputStream(FileDescriptor.err);
+        } else {
+            os = follow ? new SystemOutStream() : new FileOutputStream(FileDescriptor.out);
+        }
+        return AnsiConsole.wrapOutputStream(os);
     }
 
     public static class FactoryData {
