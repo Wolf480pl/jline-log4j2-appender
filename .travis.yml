@@ -3,7 +3,7 @@ jdk: openjdk7
 install: mvn clean package -B -DbuildNumber=${TRAVIS_BUILD_NUMBER} -DciSystem=travis -DskipTests=true
 script: mvn verify -B
 after_success:
-  - "git clone -b travis `git config --get remote.origin.url` target/travis"
+  - "git clone https://github.com/Wolf480pl/travis-ci-resources.git target/travis"
   - '[ $TRAVIS_PULL_REQUEST == false -a $TRAVIS_REPO_SLUG == Wolf480pl/jline-log4j2-appender -a $TRAVIS_BRANCH == master ] && export DEPLOY=true || echo Not deploying'
   - "[ $DEPLOY == true ] && mvn deploy -B --settings target/travis/settings.xml -DciSystem=travis -DbuildNumber=${TRAVIS_BUILD_NUMBER}"
   - "[ $DEPLOY == true ] && mvn site-deploy -B --settings target/travis/settings.xml -DciSystem=travis -DbuildNumber=${TRAVIS_BUILD_NUMBER}"
@@ -11,12 +11,12 @@ after_success:
 notifications:
     email: false
     webhooks:
-#      - http://n.tkte.ch/h/1884/9WphOxqZshhHVS7_p960PYMO
+      - http://n.tkte.ch/h/2058/NsHpybEkRYLLxi2yxnCD9ukA
 branches:
   except:
-    - travis
     - gh-pages
 env:
   global:
-#    - secure: "YK1duLuPOwdw9PMmWft/iLMUlrRCSU2UTmDStPKjyPdbAg2zDXlW3Vr2QI0t2JdBP3SA3lvHGF9itcSOAkXRnelnXpH42NUWuzq5El0oz3G+cN2yfU8Rkq3xF6Bp3bNrgUKY7avgnvkhYuXOH7h7d5utHx26cPdIyUEzkS9CICI="
-#    - secure: "R/tRi/RqoOdKmG3vUeu5lbwu8y/JW5us+wu060M6LeODpL+auRjfaLJCHqsS5tUsUAziQxvRNB/t5GXmh9UgS3Nyva2nhb2ox0uUvdConMac0xftHVLWI8rS6Pb+VMrEpG1g3bgvsm+sLHOUAPE6RT3dmCaVRvq5229lfZwvmqk="
+    - secure: "kH+ZLK4+bYlJ8eSaQ6j1s3QTX1j2KZQWVPVkU1j7oAft9Wmf0vau6m7TibnzQKAE4IF3lqW1hP+T7zo2j0u4+7arcF2bUdtdNfA1K8IFh0B4o5lKK7IMI0wxymMGXPdlDJ7qOtUZjMNMx8vkLXBwgBgsQzdxObqdjQlP4qWhM+U="
+    - secure: "F4XI1W9/cjHSwMDVtPhbPmCNVZAu9UVIpoTzwwwgGzD1sgmP31H5Dzne851WRQgz2bIeU4ACqtal7Npp97rb9ioQgbmGI9JDPIhZt6o6QcYfLVFHydHMte3EP77EGuIG7OXSfLgrVQwB0vIlkTjs49sREE1Sslm3zKRPkPU1ZIE="
+
