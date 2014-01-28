@@ -23,8 +23,6 @@
  */
 package com.github.wolf480pl.jline_log4j2_appender;
 
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -100,9 +98,9 @@ public class JLineConsoleAppender extends AbstractOutputStreamAppender {
     protected static OutputStream getStream(boolean follow, Target target) {
         OutputStream os;
         if (target == Target.SYSTEM_ERR) {
-            os = follow ? new SystemErrStream() : new FileOutputStream(FileDescriptor.err);
+            os = follow ? new SystemErrStream() : new NeverClosingOutputStream(System.err);
         } else {
-            os = follow ? new SystemOutStream() : new FileOutputStream(FileDescriptor.out);
+            os = follow ? new SystemOutStream() : new NeverClosingOutputStream(System.out);
         }
         return AnsiConsole.wrapOutputStream(os);
     }
