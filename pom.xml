@@ -26,6 +26,7 @@
     <packageName>jline_log4j2_appender</packageName>
     <ciSystem>unknown</ciSystem>
     <buildNumber>0</buildNumber>
+    <commit>unknown</commit>
   </properties>
   
   <!-- Developers -->
@@ -150,6 +151,21 @@
           </compilerArguments>
           <showWarnings>true</showWarnings>
           <showDeprecation>true</showDeprecation>
+        </configuration>
+      </plugin>
+      <!-- JAR creation plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Implementation-Title>${project.name}</Implementation-Title>
+              <Implementation-Version>${project.version}+${ciSystem}-b${buildNumber}.git-${commit}</Implementation-Version>
+              <Implementation-Vendor>${author}</Implementation-Vendor>
+            </manifestEntries>
+          </archive>
         </configuration>
       </plugin>
       <!-- Maven release plugin --> 

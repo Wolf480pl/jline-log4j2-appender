@@ -1,12 +1,12 @@
 language: java
 jdk: openjdk7
-install: mvn clean package -B -DbuildNumber=${TRAVIS_BUILD_NUMBER} -DciSystem=travis -DskipTests=true
+install: mvn clean package -B -DbuildNumber=${TRAVIS_BUILD_NUMBER} -Dcommit=${TRAVIS_COMMIT:0:7} -DciSystem=travis -DskipTests=true
 script: mvn verify -B
 after_success:
   - "git clone https://github.com/Wolf480pl/travis-ci-resources.git target/travis"
   - '[ $TRAVIS_PULL_REQUEST == false -a $TRAVIS_REPO_SLUG == Wolf480pl/jline-log4j2-appender -a $TRAVIS_BRANCH == master ] && export DEPLOY=true || echo Not deploying'
-  - "[ $DEPLOY == true ] && mvn deploy -B --settings target/travis/settings.xml -DciSystem=travis -DbuildNumber=${TRAVIS_BUILD_NUMBER}"
-  - "[ $DEPLOY == true ] && mvn site-deploy -B --settings target/travis/settings.xml -DciSystem=travis -DbuildNumber=${TRAVIS_BUILD_NUMBER}"
+  - "[ $DEPLOY == true ] && mvn deploy -B --settings target/travis/settings.xml -DciSystem=travis -DbuildNumber=${TRAVIS_BUILD_NUMBER} -Dcommit=${TRAVIS_COMMIT:0:7}"
+  - "[ $DEPLOY == true ] && mvn site-deploy -B --settings target/travis/settings.xml -DciSystem=travis -DbuildNumber=${TRAVIS_BUILD_NUMBER} -Dcommit=${TRAVIS_COMMIT:0:7}"
 
 notifications:
     email: false
