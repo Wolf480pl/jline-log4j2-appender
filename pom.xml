@@ -5,7 +5,7 @@
   <name>JLine Console Log4j2 Appender</name>
   <groupId>com.github.wolf480pl</groupId>
   <artifactId>jline-log4j2-appender</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <url>http://github.com/Wolf480pl/${repoName}</url>
   <inceptionYear>2013</inceptionYear>
   <packaging>jar</packaging>
